@@ -7,24 +7,40 @@ import { nanoid } from 'nanoid'
 function App() {
   const [dice, setDice] = useState(allnewDice)
 
-  function allnewDice() {
-    let array = []
-    for (let index = 0; index < 10; index++) {
-      array.push({
+  function generateNumber(){
+    return {
         value: Math.ceil(Math.random() * 6),
         isHeld: false,
         id: nanoid()
-      })
+      }
+  } 
+
+  function allnewDice() {
+    let array = []
+    for (let index = 0; index < 10; index++) {
+      array.push(generateNumber())
     }
     return array
   }
   
   function rollDice() {
-    setDice(allnewDice())
+    setDice(prevState => prevState.map(item => {
+      return item.isHeld ? item : generateNumber()
+    }))
+  }
+
+  function holdDice(id) {
+    setDice(prevState => prevState.map(item => {
+      return item.id === id ? {...item, isHeld: !item.isHeld} : item
+    }))
   }
 
   const elements = dice.map((item) => 
-      <Die key={item.id} value={item.value} 
+      <Die 
+        key={item.id} 
+        value={item.value} 
+        isHeld={item.isHeld}
+        holdDice={() => holdDice(item.id)} 
     />)
 
   return (
